@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
-import { Trash2, Pencil, Check, X } from "lucide-react";
+import { Trash2, Pencil, Check, X, EyeOff, Eye } from "lucide-react";
 import { getInitials } from "@/lib/utils";
 import { useAuth } from "@/components/auth/AuthContext";
 
@@ -46,11 +46,39 @@ function ImageLightbox({ src, onClose }: { src: string; onClose: () => void }) {
   );
 }
 
+// スポイラー（ネタバレ隠し）ブロック
+function SpoilerBlock({ title, content }: { title: string; content: string }) {
+  const [revealed, setRevealed] = useState(false);
+  return (
+    <div className="my-2 rounded-lg overflow-hidden border border-amber-500/20 bg-amber-500/[0.03]">
+      <button
+        onClick={() => setRevealed((r) => !r)}
+        className="w-full flex items-center gap-2 px-3 py-2 text-xs text-amber-300/80 hover:bg-amber-500/10 transition-colors"
+      >
+        {revealed ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+        <span className="font-medium">{title || "スポイラー"}</span>
+        <span className="ml-auto text-amber-300/40">{revealed ? "隠す" : "表示する"}</span>
+      </button>
+      {revealed && (
+        <div className="px-3 py-2 border-t border-amber-500/10 text-sm text-white/80 whitespace-pre-wrap break-words">
+          {content}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function renderContent(content: string) {
   if (!content) return null;
-  const parts = content.split(/(```[\s\S]*?```|`[^`]+`)/g);
+  // コードブロック / インラインコード / スポイラーブロックを分離
+  const parts = content.split(/(```spoiler[\s\S]*?```|```[\s\S]*?```|`[^`]+`)/g);
   return parts.map((part, i) => {
-    if (part.startsWith("```")) {
+    if (part.startsWith("```spoiler")) {
+      const match = part.match(/```spoiler[ \t]*(.*)\n([\s\S]*?)```/);
+      const title = match?.[1]?.trim() || "";
+      const body = match?.[2] ?? "";
+      return <SpoilerBlock key={i} title={title} content={body.replace(/\n$/, "")} />;
+    } else if (part.startsWith("```")) {
       const match = part.match(/```(\w*)\n?([\s\S]*?)```/);
       const lang = match?.[1] || "";
       const code = match?.[2] || part.slice(3, -3);

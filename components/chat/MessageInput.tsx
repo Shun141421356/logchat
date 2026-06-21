@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useCallback } from "react";
-import { Send, Image, X, Code } from "lucide-react";
+import { Send, Image, X, Code, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface MessageInputProps {
@@ -76,6 +76,25 @@ export function MessageInput({ onSend, channelName, isArchived }: MessageInputPr
       textarea.focus();
     }, 0);
   };
+
+  const insertSpoiler = () => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selected = content.slice(start, end);
+    const block = `\`\`\`spoiler タイトル\n${selected}\n\`\`\``;
+    const newContent = content.slice(0, start) + block + content.slice(end);
+    setContent(newContent);
+    setTimeout(() => {
+      // 「タイトル」の部分を選択状態にする
+      const titleStart = start + "```spoiler ".length;
+      const titleEnd = titleStart + "タイトル".length;
+      textarea.setSelectionRange(titleStart, titleEnd);
+      textarea.focus();
+    }, 0);
+  };
+
 
   const handleSubmit = async () => {
     if ((!content.trim() && !imagePreview) || sending) return;
@@ -158,6 +177,13 @@ export function MessageInput({ onSend, channelName, isArchived }: MessageInputPr
             className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/10 transition-all"
           >
             <Code className="w-4 h-4" />
+          </button>
+          <button
+            onClick={insertSpoiler}
+            title="スポイラー（ネタバレ隠し）"
+            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/10 transition-all"
+          >
+            <EyeOff className="w-4 h-4" />
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
