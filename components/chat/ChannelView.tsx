@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { Hash, Archive, Menu } from "lucide-react";
 import { MessageItem } from "./MessageItem";
 import { MessageInput } from "./MessageInput";
+import { cn } from "@/lib/utils";
 
 interface Message {
   id: string;
@@ -20,9 +21,10 @@ interface ChannelViewProps {
   channelName: string;
   isArchived: boolean;
   onOpenSidebar: () => void;
+  isDesktop: boolean;
 }
 
-export function ChannelView({ channelId, channelName, isArchived, onOpenSidebar }: ChannelViewProps) {
+export function ChannelView({ channelId, channelName, isArchived, onOpenSidebar, isDesktop }: ChannelViewProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -98,13 +100,15 @@ export function ChannelView({ channelId, channelName, isArchived, onOpenSidebar 
   return (
     <div className="flex-1 flex flex-col h-screen min-w-0">
       {/* チャンネルヘッダー */}
-      <div className="px-3 md:px-4 py-3 border-b border-white/5 flex items-center gap-2 flex-shrink-0 bg-[#13131f]/80 backdrop-blur-sm">
-        <button
-          onClick={onOpenSidebar}
-          className="p-1.5 -ml-1 rounded-md hover:bg-white/10 transition-colors md:hidden"
-        >
-          <Menu className="w-4.5 h-4.5 text-white/60" />
-        </button>
+      <div className={cn("py-3 border-b border-white/5 flex items-center gap-2 flex-shrink-0 bg-[#13131f]/80 backdrop-blur-sm", isDesktop ? "px-4" : "px-3")}>
+        {!isDesktop && (
+          <button
+            onClick={onOpenSidebar}
+            className="p-1.5 -ml-1 rounded-md hover:bg-white/10 transition-colors"
+          >
+            <Menu className="w-4.5 h-4.5 text-white/60" />
+          </button>
+        )}
         <Hash className="w-4 h-4 text-white/40" />
         <span className="text-white font-semibold text-sm truncate">{channelName}</span>
         {isArchived && (

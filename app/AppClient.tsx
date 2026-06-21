@@ -28,6 +28,14 @@ export default function AppClient() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [activeChannelId, setActiveChannelId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(true);
+
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const [groupModal, setGroupModal] = useState(false);
   const [channelModal, setChannelModal] = useState(false);
@@ -145,6 +153,7 @@ export default function AppClient() {
         onDeleteGroup={handleDeleteGroup}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        isDesktop={isDesktop}
       />
 
       {activeChannel ? (
@@ -154,17 +163,20 @@ export default function AppClient() {
           channelName={activeChannel.name}
           isArchived={activeChannel.isArchived}
           onOpenSidebar={() => setSidebarOpen(true)}
+          isDesktop={isDesktop}
         />
       ) : (
         <div className="flex-1 flex flex-col min-w-0">
-          <div className="px-3 py-3 border-b border-white/5 flex items-center md:hidden">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="p-1.5 -ml-1 rounded-md hover:bg-white/10 transition-colors"
-            >
-              <Menu className="w-4.5 h-4.5 text-white/60" />
-            </button>
-          </div>
+          {!isDesktop && (
+            <div className="px-3 py-3 border-b border-white/5 flex items-center">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="p-1.5 -ml-1 rounded-md hover:bg-white/10 transition-colors"
+              >
+                <Menu className="w-4.5 h-4.5 text-white/60" />
+              </button>
+            </div>
+          )}
           <div className="flex-1 flex flex-col items-center justify-center gap-3">
             <div className="w-16 h-16 rounded-2xl bg-white/[0.03] flex items-center justify-center border border-white/5">
               <MessageSquare className="w-7 h-7 text-white/15" />

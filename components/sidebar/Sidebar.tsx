@@ -28,6 +28,7 @@ interface SidebarProps {
   onDeleteGroup: (groupId: string) => void;
   isOpen: boolean;
   onClose: () => void;
+  isDesktop: boolean;
 }
 
 type ContextMenu =
@@ -44,6 +45,7 @@ export function Sidebar({
   onDeleteGroup,
   isOpen,
   onClose,
+  isDesktop,
 }: SidebarProps) {
   const { user, logout } = useAuth();
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
@@ -78,21 +80,22 @@ export function Sidebar({
   return (
     <>
       {/* モバイル用オーバーレイ背景 */}
-      {isOpen && (
+      {isOpen && !isDesktop && (
         <div
-          className="fixed inset-0 bg-black/60 z-40 md:hidden"
+          className="fixed inset-0 bg-black/60 z-40"
           onClick={onClose}
         />
       )}
 
       <div
         className={cn(
-          "flex-shrink-0 flex flex-col bg-[#181828] border-r border-white/[0.06] h-screen w-64",
-          // モバイル：固定位置でスライドイン/アウト
-          "fixed inset-y-0 left-0 z-50 transition-transform duration-200 ease-out",
-          isOpen ? "translate-x-0" : "-translate-x-full",
-          // デスクトップ：常に表示、静的配置
-          "md:translate-x-0 md:static md:z-auto md:w-60"
+          "flex-shrink-0 flex flex-col bg-[#181828] border-r border-white/[0.06] h-screen transition-transform duration-200 ease-out",
+          isDesktop
+            ? "static z-auto w-60 translate-x-0"
+            : cn(
+                "fixed inset-y-0 left-0 z-50 w-64",
+                isOpen ? "translate-x-0" : "-translate-x-full"
+              )
         )}
         onClick={() => setContextMenu(null)}
       >
@@ -102,12 +105,14 @@ export function Sidebar({
             <span className="text-white text-[10px] font-bold tracking-tight">LC</span>
           </div>
           <span className="text-white/80 font-semibold text-sm tracking-wide flex-1">LogChat</span>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-md hover:bg-white/10 transition-colors md:hidden"
-          >
-            <X className="w-4 h-4 text-white/40" />
-          </button>
+          {!isDesktop && (
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-md hover:bg-white/10 transition-colors"
+            >
+              <X className="w-4 h-4 text-white/40" />
+            </button>
+          )}
         </div>
 
         {/* グループ・チャンネルリスト */}
