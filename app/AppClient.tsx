@@ -5,7 +5,7 @@ import { useAuth } from "@/components/auth/AuthContext";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { ChannelView } from "@/components/chat/ChannelView";
 import { Modal } from "@/components/ui/Modal";
-import { Hash, MessageSquare } from "lucide-react";
+import { Hash, MessageSquare, Menu } from "lucide-react";
 
 interface Channel {
   id: string;
@@ -27,6 +27,7 @@ export default function AppClient() {
   const router = useRouter();
   const [groups, setGroups] = useState<Group[]>([]);
   const [activeChannelId, setActiveChannelId] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [groupModal, setGroupModal] = useState(false);
   const [channelModal, setChannelModal] = useState(false);
@@ -142,6 +143,8 @@ export default function AppClient() {
         }}
         onArchiveChannel={handleArchiveChannel}
         onDeleteGroup={handleDeleteGroup}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
 
       {activeChannel ? (
@@ -150,13 +153,24 @@ export default function AppClient() {
           channelId={activeChannelId!}
           channelName={activeChannel.name}
           isArchived={activeChannel.isArchived}
+          onOpenSidebar={() => setSidebarOpen(true)}
         />
       ) : (
-        <div className="flex-1 flex flex-col items-center justify-center gap-3">
-          <div className="w-16 h-16 rounded-2xl bg-white/[0.03] flex items-center justify-center border border-white/5">
-            <MessageSquare className="w-7 h-7 text-white/15" />
+        <div className="flex-1 flex flex-col min-w-0">
+          <div className="px-3 py-3 border-b border-white/5 flex items-center md:hidden">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-1.5 -ml-1 rounded-md hover:bg-white/10 transition-colors"
+            >
+              <Menu className="w-4.5 h-4.5 text-white/60" />
+            </button>
           </div>
-          <p className="text-white/25 text-sm">チャンネルを選択してください</p>
+          <div className="flex-1 flex flex-col items-center justify-center gap-3">
+            <div className="w-16 h-16 rounded-2xl bg-white/[0.03] flex items-center justify-center border border-white/5">
+              <MessageSquare className="w-7 h-7 text-white/15" />
+            </div>
+            <p className="text-white/25 text-sm">チャンネルを選択してください</p>
+          </div>
         </div>
       )}
 

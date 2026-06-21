@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Hash, Archive } from "lucide-react";
+import { Hash, Archive, Menu } from "lucide-react";
 import { MessageItem } from "./MessageItem";
 import { MessageInput } from "./MessageInput";
 
@@ -19,9 +19,10 @@ interface ChannelViewProps {
   channelId: string;
   channelName: string;
   isArchived: boolean;
+  onOpenSidebar: () => void;
 }
 
-export function ChannelView({ channelId, channelName, isArchived }: ChannelViewProps) {
+export function ChannelView({ channelId, channelName, isArchived, onOpenSidebar }: ChannelViewProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -97,11 +98,17 @@ export function ChannelView({ channelId, channelName, isArchived }: ChannelViewP
   return (
     <div className="flex-1 flex flex-col h-screen min-w-0">
       {/* チャンネルヘッダー */}
-      <div className="px-4 py-3 border-b border-white/5 flex items-center gap-2 flex-shrink-0 bg-[#13131f]/80 backdrop-blur-sm">
+      <div className="px-3 md:px-4 py-3 border-b border-white/5 flex items-center gap-2 flex-shrink-0 bg-[#13131f]/80 backdrop-blur-sm">
+        <button
+          onClick={onOpenSidebar}
+          className="p-1.5 -ml-1 rounded-md hover:bg-white/10 transition-colors md:hidden"
+        >
+          <Menu className="w-4.5 h-4.5 text-white/60" />
+        </button>
         <Hash className="w-4 h-4 text-white/40" />
-        <span className="text-white font-semibold text-sm">{channelName}</span>
+        <span className="text-white font-semibold text-sm truncate">{channelName}</span>
         {isArchived && (
-          <span className="flex items-center gap-1 text-xs text-amber-400/70 bg-amber-400/10 px-2 py-0.5 rounded-full">
+          <span className="flex items-center gap-1 text-xs text-amber-400/70 bg-amber-400/10 px-2 py-0.5 rounded-full flex-shrink-0">
             <Archive className="w-3 h-3" />
             アーカイブ済み
           </span>
